@@ -96,7 +96,6 @@ int CreateAllThreads(Thread** allThreads, int numberOfThreads, char* pathToResul
 
 	}
 	
-	//TODO: need to print here inside to pathToResults in correct format
 	PrintResults(allThreads, numberOfThreads, pathToResultsFile);
 
 	if (FreeThreadArray(allThreads, numberOfThreads) != 0)
@@ -109,9 +108,22 @@ int CreateAllThreads(Thread** allThreads, int numberOfThreads, char* pathToResul
 
 int PrintResults(Thread** allThreads, int numberOfThreads, char* pathToResultsFile){
 	int i;
-	for (i = 0; i < numberOfThreads; i++)
-	{
-		printf("test #%d : %s", i, TranslateExitCode(allThreads[i]->ExitCode));
+	FILE* file = NULL;
+	int retVal = fopen_s(&file,pathToResultsFile, "w+");
+	if (file == NULL){
+		printf("Error opening file!\n");
+		return -2;
 	}
+	for (i = 0; i < numberOfThreads; i++){
+		char buffer[100];
+		retVal = sprintf_s(buffer,100,"test #%d : %s", i+1, TranslateExitCode(allThreads[i]->ExitCode));
+		if (retVal == 0){
+			printf("Error");
+			return -2;
+		}
+		fprintf(file, "%s\n", buffer);
+	}
+	fclose(file);
+
 	return 0;
 }

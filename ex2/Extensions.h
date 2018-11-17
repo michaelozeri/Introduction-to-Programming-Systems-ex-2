@@ -9,15 +9,6 @@
 #include <string.h>
 /* Constants */
 
-//TODO: convrsion is bad, or cancel enum or cancel convert
-//enum StatusCodes
-//{
-//	SUCCESS = 0,
-//	CRASHED = -1,
-//	FAILURE = -2,
-//	TIMEOUT = -3
-//};
-
 /* Struct Declerations */
 /* ResultFile is a struct representing a read file
 *	Members:
