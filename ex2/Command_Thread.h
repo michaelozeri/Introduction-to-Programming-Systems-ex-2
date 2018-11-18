@@ -22,4 +22,15 @@
 */
 DWORD WINAPI CommandThread(LPVOID lpParam);
 
-#endif // __COMMAND_THREAD_H__
+/*
+this function creates a process to run from params checks the returnCode and if its ok compares results with
+the expected result file, the function also writes to a result file given in params
+
+the function also writes data into params - ExitCode
+Parameters:
+params - the struct contatining the command to run,
+the path to the result file to write to and the path to the expected result file
+*/
+void RunProcessAndTestProgramForResults(COMMAND_THREAD_params_t* params);
+
+#endif // !__COMMAND_THREAD_H__

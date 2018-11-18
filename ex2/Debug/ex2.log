@@ -1,1 +1,14 @@
-﻿  ex2.vcxproj -> C:\Users\michael\source\repos\ex2\Debug\ex2.exe
+﻿  Command_Thread.c
+  Extensions.c
+c:\users\michael\source\repos\ex2\ex2\extensions.c(252): warning C4090: '=': different 'const' qualifiers
+c:\users\michael\source\repos\ex2\ex2\extensions.c(269): warning C4090: '=': different 'const' qualifiers
+c:\users\michael\source\repos\ex2\ex2\extensions.c(297): warning C4090: '=': different 'const' qualifiers
+  RunProcess.c
+c:\users\michael\source\repos\ex2\ex2\runprocess.c(23): warning C4047: '=': 'PROCESS_INFORMATION *' differs in levels of indirection from 'PPROCESS_INFORMATION *'
+c:\users\michael\source\repos\ex2\ex2\runprocess.c(69): warning C4047: '=': 'DWORD *' differs in levels of indirection from 'DWORD'
+  ThreadManager.c
+  main.c
+c:\users\michael\source\repos\ex2\ex2\main.c(20): warning C4013: 'HandleAllThreads' undefined; assuming extern returning int
+c:\users\michael\source\repos\ex2\ex2\main.c(36): warning C4013: 'FreeThreadArray' undefined; assuming extern returning int
+  Generating Code...
+  ex2.vcxproj -> C:\Users\michael\source\repos\ex2\Debug\ex2.exe

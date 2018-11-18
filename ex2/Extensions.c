@@ -1,37 +1,29 @@
 /* Includes */
 #include "Extensions.h"
 
-void FreeProcessObject(Process* process)
-{
+void FreeProcessObject(Process* process) {
 	free(process->ExitCode);
 	free(process->ProcessInformation);
 	free(process);
 }
 
-void FreeResultsObject(ResultFile* result)
-{
+void FreeResultsObject(ResultFile* result) {
 	FreeStringArray(result->Results, result->NumberOfElements);
 	free(result);
 }
 
-void FreeStringArray(char** arr, int numOfMembers)
-{
-	for (int i = 0; i < numOfMembers; i++)
-	{
+void FreeStringArray(char** arr, int numOfMembers) {
+	for (int i = 0; i < numOfMembers; i++) {
 		free(arr[i]);
 	}
-
 	free(arr);
 }
 
-static int FreeThread(Thread* thread)
-{
+int FreeThread(Thread* thread) {
 	int returnCode = 0;
-	if (CloseHandle(thread->Handle) == false)
-	{
+	if (CloseHandle(thread->Handle) == false) {
 		returnCode = -1;
 	}
-
 	free(thread->Id);
 	free(thread->p_thread_params->Command);
 	free(thread->p_thread_params->ExpectedResultPath);
@@ -40,47 +32,39 @@ static int FreeThread(Thread* thread)
 	return returnCode;
 }
 
-int FreeThreadArray(Thread** arr, int numOfMembers)
-{
+int FreeThreadArray(Thread** arr, int numOfMembers) {
 	int code = 0;
-	for (int i = 0; i < numOfMembers; i++)
-	{
-		if (FreeThread(arr[i]) != 0)
-		{
+	for (int i = 0; i < numOfMembers; i++) {
+		if (FreeThread(arr[i]) != 0) {
 			code = -1;
 		}
 	}
 	return code;
 }
 
-int CompareResultsFiles(char* expectedResultPath, char* resultsPath){
-	ResultFile *expectedResults = ReadFileContents(expectedResultPath);
+int CompareResultsFiles(char* expectedResultPath, char* resultsPath) {
+	ResultFile* expectedResults = ReadFileContents(expectedResultPath);
 	int i;
-	if (expectedResults == NULL)
-	{
+	if (expectedResults == NULL) {
 		printf("Couldnt read expected results path");
 		return -1;
 	}
 
-	ResultFile *results = ReadFileContents(resultsPath);
-	if (results == NULL)
-	{
+	ResultFile* results = ReadFileContents(resultsPath);
+	if (results == NULL) {
 		printf("Couldnt read results path");
 		FreeResultsObject(expectedResults);
 		return -1;
 	}
 
-	if (expectedResults->NumberOfElements != results->NumberOfElements)
-	{
+	if (expectedResults->NumberOfElements != results->NumberOfElements) {
 		FreeResultsObject(expectedResults);
 		FreeResultsObject(results);
 		return -2;
 	}
 
-	for (i = 0; i < expectedResults->NumberOfElements; i++)
-	{
-		if (strcmp(expectedResults->Results[i], results->Results[i]) != 0)
-		{
+	for (i = 0; i < expectedResults->NumberOfElements; i++) {
+		if (strcmp(expectedResults->Results[i], results->Results[i]) != 0) {
 			FreeResultsObject(results);
 			return -2;
 		}
@@ -90,8 +74,7 @@ int CompareResultsFiles(char* expectedResultPath, char* resultsPath){
 	return 0;
 }
 
-ResultFile* ReadFileContents(char *path)
-{
+ResultFile* ReadFileContents(char *path) {
 	int diff = 1;
 	char **output = (char**)malloc(1 * sizeof(char*));
 	if (output == NULL)
@@ -108,8 +91,7 @@ ResultFile* ReadFileContents(char *path)
 	char *p_ret_str;
 	// Open file
 	retval = fopen_s(&p_stream, path, "r");
-	if (0 != retval)
-	{
+	if (0 != retval) {
 		printf("Failed to open file.\n");
 		free(output);
 		return NULL;
@@ -117,12 +99,10 @@ ResultFile* ReadFileContents(char *path)
 
 	// Read lines
 	p_ret_str = fgets(p_line, 100, p_stream);
-	while (NULL != p_ret_str)
-	{
+	while (NULL != p_ret_str) {
 		// Allocated memory for current line
 		output[i] = (char*)malloc(100 * sizeof(char));
-		if (output[i] == NULL)
-		{
+		if (output[i] == NULL) {
 			printf("Memory allocation failed.\n");
 			FreeStringArray(output, i);
 			return NULL;
@@ -131,13 +111,11 @@ ResultFile* ReadFileContents(char *path)
 		snprintf(output[i], strlen(p_line) + 1, p_line);
 		p_ret_str = fgets(p_line, 100, p_stream);
 		i++;
-		if (i * sizeof(char*) >= currentSize)
-		{
+		if (i * sizeof(char*) >= currentSize) {
 			currentSize *= 2;
 			// Need to allocate more memory
 			output = (char**)realloc(output, currentSize);
-			if (output == NULL)
-			{
+			if (output == NULL) {
 				printf("Memory allocation failed.\n");
 				FreeStringArray(output, i);
 				return NULL;
@@ -145,20 +123,17 @@ ResultFile* ReadFileContents(char *path)
 		}
 	}
 
-	if (i * sizeof(char*) < currentSize)
-	{
+	if (i * sizeof(char*) < currentSize) {
 		// We have empty allocated memory
 		output = (char**)realloc(output, i * sizeof(char*));
-		if (output == NULL)
-		{
+		if (output == NULL) {
 			printf("Memory allocation failed.\n");
 			FreeStringArray(output, i);
 			return NULL;
 		}
 	}
 	ResultFile* results = (ResultFile*)malloc(sizeof(ResultFile));
-	if (results == NULL)
-	{
+	if (results == NULL) {
 		printf("Memory allocation failed.\n");
 		FreeStringArray(output, i);
 		return NULL;
@@ -169,8 +144,7 @@ ResultFile* ReadFileContents(char *path)
 	results->TotalSize = i * sizeof(char*);
 	// Close file
 	retval = fclose(p_stream);
-	if (0 != retval)
-	{
+	if (0 != retval) {
 		printf("Failed to close file.\n");
 		FreeResultsObject(results);
 		return NULL;
@@ -179,48 +153,41 @@ ResultFile* ReadFileContents(char *path)
 	return results;
 }
 
-Thread* GetThreadFromLine(char *testFileLine)
-{
-	if (testFileLine[strlen(testFileLine) - 1] == '\n')
-	{
+Thread* GetThreadFromLine(char *testFileLine) {
+	if (testFileLine[strlen(testFileLine) - 1] == '\n') {
 		testFileLine[strlen(testFileLine) - 1] = '\0';
 	}
 
 	int lenA = 0;
 	char** arr = SplitLineArguments(testFileLine);
 	char rel[] = "./";
-	if (arr == NULL)
-	{
+	if (arr == NULL) {
 		return NULL;
 	}
-	
-	size_t expectedSize = strlen(rel) + strlen(arr[1]) + 1; //TODO understand why 1
+
+	size_t expectedSize = strlen(rel) + strlen(arr[1]) + 1; 
 	Thread* newThread = (Thread*)malloc(sizeof(Thread));
-	if (newThread == NULL)
-	{
+	if (newThread == NULL) {
 		printf("Memory allocation failed.\n");
 		return NULL;
 	}
 
 	newThread->p_thread_params = (COMMAND_THREAD_params_t*)malloc(sizeof(COMMAND_THREAD_params_t));
-	if (newThread->p_thread_params == NULL)
-	{
+	if (newThread->p_thread_params == NULL) {
 		printf("Memory allocation failed.\n");
 		FreeThread(newThread);
 		return NULL;
 	}
 
-		newThread->Id = (DWORD*)malloc(sizeof(DWORD));
-	if (newThread->Id == NULL)
-	{
+	newThread->Id = (DWORD*)malloc(sizeof(DWORD));
+	if (newThread->Id == NULL) {
 		printf("Memory allocation failed.\n");
 		FreeThread(newThread);
 		return NULL;
 	}
 
 	newThread->p_thread_params->ExpectedResultPath = (char*)malloc(sizeof(char) * 100);
-	if (newThread->p_thread_params->ExpectedResultPath == NULL)
-	{
+	if (newThread->p_thread_params->ExpectedResultPath == NULL) {
 		printf("Memory allocation failed.\n");
 		FreeThread(newThread);
 		return NULL;
@@ -229,8 +196,7 @@ Thread* GetThreadFromLine(char *testFileLine)
 	//set expected rusults
 	snprintf(newThread->p_thread_params->ExpectedResultPath, expectedSize + 1, "%s%s", rel, arr[1]);
 	newThread->p_thread_params->Command = (char*)malloc(sizeof(char) * 100);
-	if (newThread->p_thread_params->Command == NULL)
-	{
+	if (newThread->p_thread_params->Command == NULL) {
 		printf("Memory allocation failed.\n");
 		FreeThread(newThread);
 		return NULL;
@@ -239,8 +205,7 @@ Thread* GetThreadFromLine(char *testFileLine)
 	//set command
 	snprintf(newThread->p_thread_params->Command, strlen(arr[0]) + 1, "%s", arr[0]);
 	newThread->p_thread_params->ResultsPath = (char*)malloc(sizeof(char) * 100);
-	if (newThread->p_thread_params->ResultsPath == NULL)
-	{
+	if (newThread->p_thread_params->ResultsPath == NULL) {
 		printf("Memory allocation failed.\n");
 		FreeThread(newThread);
 		return NULL;
@@ -251,27 +216,34 @@ Thread* GetThreadFromLine(char *testFileLine)
 	SplitLine(testFileLine, ' ', &newarr);
 	expectedSize = strlen(newarr[0]) + strlen(rel) + 1;
 	//set results path
-	snprintf(newThread->p_thread_params->ResultsPath, expectedSize+1, "%s%s", rel, ConverExeExtensionToTxt(newarr[0], ".exe", ".txt"));
+	snprintf(newThread->p_thread_params->ResultsPath, expectedSize + 1, "%s%s", rel, ConverExeExtensionToTxt(newarr[0], ".exe", ".txt"));
 	return newThread;
 }
 
-char* TranslateExitCode(int exitCode)
-{
-	switch (exitCode)
-	{
+char* TranslateExitCode(Thread* thread) {
+	int exitCode = thread->ExitCode;
+	if (thread->p_thread_params->isCrashed) {
+		char* crashString = (char*)malloc(sizeof(char) * 11);
+		int retVal = sprintf_s(crashString, 11, "Crashed %d", exitCode);
+		if (retVal == 0) {
+			return "Crashed";
+		}
+		return crashString;
+	}
+	switch (exitCode) {
 	case 0:
 		return "Succeeded";
-	case -3:
-		return "Timed Out";
 	case -1:
 		return "Crashed";
 	case -2:
 		return "Failed";
+	case -3:
+		return "Timed Out";
 	}
+	return NULL;
 }
 
-static int SplitLine(const char *str, char c, char*** arr)
-{
+int SplitLine(const char *str, char c, char*** arr) {
 	int count = 1;
 	int token_len = 1;
 	int i = 0;
@@ -280,46 +252,45 @@ static int SplitLine(const char *str, char c, char*** arr)
 	p = str;
 	while (*p != '\0')
 	{
-	if (*p == c)
-	{
-	count++;
-	}
+		if (*p == c)
+		{
+			count++;
+		}
 
-	p++;
+		p++;
 	}
 
 	*arr = (char**)malloc(sizeof(char*) * count);
-	if (*arr == NULL)
-	{
-	printf("Memory allocation failed.\n");
-	return -1;
+	if (*arr == NULL) {
+		printf("Memory allocation failed.\n");
+		return -1;
 	}
 
 	p = str;
 	while (*p != '\0')
 	{
-	if (*p == c)
-	{
+		if (*p == c)
+		{
+			(*arr)[i] = (char*)malloc(sizeof(char) * token_len);
+			if ((*arr)[i] == NULL)
+			{
+				printf("Memory allocation failed.\n");
+				return -1;
+			}
+
+			token_len = 0;
+			i++;
+		}
+
+		p++;
+		token_len++;
+	}
+
 	(*arr)[i] = (char*)malloc(sizeof(char) * token_len);
 	if ((*arr)[i] == NULL)
 	{
-	printf("Memory allocation failed.\n");
-	return -1;
-	}
-
-	token_len = 0;
-	i++;
-	}
-
-	p++;
-	token_len++;
-	}
-
-	(*arr)[i] = (char*)malloc(sizeof(char) * token_len);
-	if ((*arr)[i] == NULL)
-	{
-	printf("Memory allocation failed.\n");
-	return -1;
+		printf("Memory allocation failed.\n");
+		return -1;
 	}
 
 	i = 0;
@@ -327,33 +298,32 @@ static int SplitLine(const char *str, char c, char*** arr)
 	t = ((*arr)[i]);
 	while (*p != '\0')
 	{
-	if (*p != c && *p != '\0')
-	{
-	*t = *p;
-	t++;
-	}
-	else
-	{
-	*t = '\0';
-	i++;
-	t = ((*arr)[i]);
-	}
+		if (*p != c && *p != '\0')
+		{
+			*t = *p;
+			t++;
+		}
+		else
+		{
+			*t = '\0';
+			i++;
+			t = ((*arr)[i]);
+		}
 
-	p++;
+		p++;
 	}
 
 	return count;
 }
 
-static char** SplitLineArguments(const char *str)
-{
+char** SplitLineArguments(const char *str) {
 	char** results = (char**)malloc(sizeof(char*) * 2);
 	if (results == NULL)
 	{
 		printf("Memory allocation failed.\n");
 		return NULL;
 	}
-	
+
 	char* newP = strrchr(str, ' ');
 	if (newP == NULL)
 	{
@@ -370,7 +340,7 @@ static char** SplitLineArguments(const char *str)
 		return NULL;
 	}
 
-	snprintf(results[0], len+1, str);
+	snprintf(results[0], len + 1, str);
 	int res1Len = strlen(str) - len;
 	results[1] = (char*)malloc(sizeof(char)*res1Len);
 	if (results[1] == NULL)
@@ -381,11 +351,11 @@ static char** SplitLineArguments(const char *str)
 		return NULL;
 	}
 
-	snprintf(results[1], res1Len+1, newP+1);
+	snprintf(results[1], res1Len + 1, newP + 1);
 	return results;
 }
 
-static char *ConverExeExtensionToTxt(char *orig, char *rep, char *with) {
+char* ConverExeExtensionToTxt(char *orig, char *rep, char *with) {
 	char *result; // the return string
 	char *ins;    // the next insert point
 	char *tmp;    // varies
@@ -394,7 +364,7 @@ static char *ConverExeExtensionToTxt(char *orig, char *rep, char *with) {
 	int len_front; // distance between rep and end of last rep
 	int count;    // number of replacements
 
-				  // sanity checks and initialization
+	// sanity checks and initialization
 	if (!orig || !rep)
 		return NULL;
 	len_rep = strlen(rep);

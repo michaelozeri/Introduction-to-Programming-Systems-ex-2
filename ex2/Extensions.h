@@ -1,6 +1,4 @@
 #pragma once
-#ifndef EXTENSIONS
-#define EXTENSIONS
 
 /* Includes */
 #include <windows.h>
@@ -53,6 +51,7 @@ typedef struct COMMAND_THREAD_params_t
 	char* ResultsPath;
 	char* ExpectedResultPath;
 	DWORD ReturnCode;
+	bool isCrashed;
 } COMMAND_THREAD_params_t;
 
 /* Thread is a struct representing a new thread
@@ -90,7 +89,7 @@ void FreeResultsObject(ResultFile* result);
 * Returns:
 *		void
 */
-static void FreeStringArray(char** arr, int numOfMembers);
+void FreeStringArray(char** arr, int numOfMembers);
 
 /* FreeProcessObject will free all allocated resources in a Process struct
 * Arguments:
@@ -127,16 +126,53 @@ ResultFile *ReadFileContents(char *path);
 */
 Thread* GetThreadFromLine(char *testFileLine);
 
-char* TranslateExitCode(int exitCode);
+/*
+this function gets an exit code from the thread and returns a string representation
+to be written to the log file
+Params: exitCode - the code to be translated from int to string
+return: the string representation if success else NULL is returned
+*/
+char* TranslateExitCode(Thread* thread);
 
 //converts extension to txt in the end
 char* ConverExeExtensionToTxt(char *orig, char *rep, char *with);
 
-//splits line of test
+/*
+this function splits line of test from the input file into the required arguments
+parameters: str - the line to split into arguments
+returns: an array of string that each one represents the arguments inserted
+*/
 char** SplitLineArguments(const char *str);
 
+/*
+splits the string given by str into sub strings by delimiter c
+Parameters:
+str - the string to split
+c- the delimiter to split by
+arr - the array of strings to store the sub strings splitted
+*/
 int SplitLine(const char *str, char c, char*** arr);
 
-#endif // !EXTENSIONS
+/*
+this function creates the threads stored in allThreads then waits for them to finish and prints results into the file
+given by pathToResultsFile
+Parameters:
+allThreads = the array of threads to run
+numberOfThreads - the size of allThreads
+pathToResultsFile - path To Results File
+*/
+int CreateAllThreads(Thread** allThreads, int numberOfThreads, char* pathToResultsFile);
+
+/*
+this function checks the resultCode of each process and prints it into the file
+which path is given
+Parameters:
+all Threads - the array of threads to print the result into the file
+numberOfThreads - the size of allThreads array
+pathToResultsFile - the path to the result file to print into
+Returns: 0 on success else -2
+*/
+int PrintResults(Thread** allThreads, int numberOfThreads, char* pathToResultsFile);
+
 
 
