@@ -165,7 +165,7 @@ Thread* GetThreadFromLine(char *testFileLine) {
 		return NULL;
 	}
 
-	size_t expectedSize = strlen(rel) + strlen(arr[1]) + 1; 
+	size_t expectedSize = strlen(rel) + strlen(arr[1]) + 1;
 	Thread* newThread = (Thread*)malloc(sizeof(Thread));
 	if (newThread == NULL) {
 		printf("Memory allocation failed.\n");
@@ -250,91 +250,70 @@ int SplitLine(const char *str, char c, char*** arr) {
 	char *p;
 	char *t;
 	p = str;
-	while (*p != '\0')
-	{
-		if (*p == c)
-		{
+	while (*p != '\0') {
+		if (*p == c) {
 			count++;
 		}
-
 		p++;
 	}
-
 	*arr = (char**)malloc(sizeof(char*) * count);
 	if (*arr == NULL) {
 		printf("Memory allocation failed.\n");
 		return -1;
 	}
-
 	p = str;
-	while (*p != '\0')
-	{
-		if (*p == c)
-		{
+	while (*p != '\0') {
+		if (*p == c) {
 			(*arr)[i] = (char*)malloc(sizeof(char) * token_len);
-			if ((*arr)[i] == NULL)
-			{
+			if ((*arr)[i] == NULL) {
 				printf("Memory allocation failed.\n");
 				return -1;
 			}
-
 			token_len = 0;
 			i++;
 		}
-
 		p++;
 		token_len++;
 	}
-
 	(*arr)[i] = (char*)malloc(sizeof(char) * token_len);
-	if ((*arr)[i] == NULL)
-	{
+	if ((*arr)[i] == NULL) {
 		printf("Memory allocation failed.\n");
 		return -1;
 	}
-
 	i = 0;
 	p = str;
 	t = ((*arr)[i]);
-	while (*p != '\0')
-	{
-		if (*p != c && *p != '\0')
-		{
+	while (*p != '\0') {
+		if (*p != c && *p != '\0') {
 			*t = *p;
 			t++;
 		}
-		else
-		{
+		else {
 			*t = '\0';
 			i++;
 			t = ((*arr)[i]);
 		}
-
 		p++;
 	}
-
 	return count;
 }
 
 char** SplitLineArguments(const char *str) {
 	char** results = (char**)malloc(sizeof(char*) * 2);
-	if (results == NULL)
-	{
+	if (results == NULL) {
 		printf("Memory allocation failed.\n");
 		return NULL;
 	}
 
 	char* newP = strrchr(str, ' ');
-	if (newP == NULL)
-	{
+	if (newP == NULL) {
 		printf("Not enough arguments given");
 		return NULL;
 	}
 
 	int len = newP - str;
 	results[0] = (char*)malloc(sizeof(char)*len);
-	if (results[0] == NULL)
-	{
+	if (results[0] == NULL) {
 		free(results);
 		printf("Memory allocation failed.\n");
 		return NULL;
@@ -343,14 +322,12 @@ char** SplitLineArguments(const char *str) {
 	snprintf(results[0], len + 1, str);
 	int res1Len = strlen(str) - len;
 	results[1] = (char*)malloc(sizeof(char)*res1Len);
-	if (results[1] == NULL)
-	{
+	if (results[1] == NULL) {
 		free(results[0]);
 		free(results);
 		printf("Memory allocation failed.\n");
 		return NULL;
 	}
-
 	snprintf(results[1], res1Len + 1, newP + 1);
 	return results;
 }

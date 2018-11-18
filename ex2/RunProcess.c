@@ -20,7 +20,7 @@ DWORD CreateProcessSimpleMain(char* runCommand) {
 		return -1;
 	}
 
-	process->ProcessInformation = (PPROCESS_INFORMATION*)malloc(sizeof(PROCESS_INFORMATION));
+	process->ProcessInformation = (PROCESS_INFORMATION*)malloc(sizeof(PROCESS_INFORMATION));
 	if (process->ProcessInformation == NULL) {
 		printf("Memory allocation failed.\n");
 		FreeProcessObject(process);
@@ -67,7 +67,7 @@ DWORD CreateProcessSimpleMain(char* runCommand) {
 
 	if (CloseHandle(process->ProcessInformation->hThread) == false) {
 		printf("Closing handle to process failed");
-		process->ExitCode = (DWORD)-1;
+		*process->ExitCode = (DWORD)-1;
 	}
 
 	exitCode = *(process->ExitCode);

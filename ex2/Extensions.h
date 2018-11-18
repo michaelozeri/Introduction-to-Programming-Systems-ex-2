@@ -174,5 +174,24 @@ Returns: 0 on success else -2
 */
 int PrintResults(Thread** allThreads, int numberOfThreads, char* pathToResultsFile);
 
+/*
+this function is the main function that runs all the program
+it receives the arguments from the main function and creates all threads
+Parameters:
+pathToTestfile - path To Test file
+pathToResultsFile - path To Results File
+Returns: 0 on suceess else -1;
+*/
+int HandleAllThreads(char* pathToTestfile, char* pathToResultsFile);
+
+/*
+this function frees the thread array and releases mem allocated
+Parameters:
+arr - the Thread array to be released
+numOfMembers - the size of arr
+Returns: 0 on success else -1;
+*/
+int FreeThreadArray(Thread** arr, int numOfMembers);
+
 
 
